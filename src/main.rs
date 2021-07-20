@@ -9,9 +9,16 @@ fn main() {
         .stdout;
 
     let branches = String::from_utf8(branches).unwrap();
-    let branches = parse_branches(branches);
+    let (branches, current) = parse_branches(branches);
+    let current = branches.iter()
+        .position(|branch| branch == &current)
+        .unwrap();
 
-    let choosen_branch = Select::new().items(&branches).interact().unwrap();
+    let choosen_branch = Select::new()
+        .items(&branches)
+        .default(current)
+        .interact()
+        .unwrap();
 
     let output = Command::new("git")
         .arg("checkout")
@@ -23,13 +30,21 @@ fn main() {
     println!("{}", String::from_utf8(output.stderr).unwrap());
 }
 
-fn parse_branches(branches: String) -> Vec<String> {
-    branches
+fn parse_branches(branches: String) -> (Vec<String>, String) {
+    let all_branches = branches
         .split('\n')
         .map(|el| el
-            .trim()
-            .trim_start_matches("* ")
-            .to_string())
-        .filter(|el| !el.is_empty())
-        .collect()
+            .trim())
+        .filter(|el| !el.is_empty());
+
+    let current_branch = all_branches
+        .clone()
+        .find(|branch| branch.starts_with("* "))
+        .map(|el| el.trim_start_matches("* "))
+        .unwrap()
+        .to_string();
+
+    let normalized_branch_names = all_branches.map(|el| el.trim_start_matches("* ").to_string());
+
+    (normalized_branch_names.collect(), current_branch)
 }
