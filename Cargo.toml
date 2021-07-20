@@ -2,3 +2,6 @@
 name = "branch-checker"
 version = "0.1.0"
 edition = "2018"
+
+[dependencies]
+dialoguer = "0.8.0"
