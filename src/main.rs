@@ -25,7 +25,7 @@ fn main() {
 
 fn parse_branches(branches: String) -> Vec<String> {
     branches
-        .split("\n")
+        .split('\n')
         .map(|el| el
             .trim()
             .trim_start_matches("* ")
