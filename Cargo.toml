@@ -1,5 +1,5 @@
 [package]
-name = "branch-checker"
+name = "branch-switcher"
 version = "0.1.0"
 edition = "2018"
 
