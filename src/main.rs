@@ -11,9 +11,12 @@ fn main() {
         .position(|branch| branch == &current)
         .unwrap();
 
-    let output = get_action()(branches, current_branch_idx);
-    println!("{}", String::from_utf8(output.stdout).unwrap());
-    println!("{}", String::from_utf8(output.stderr).unwrap());
+    let outputs = get_action()(branches, current_branch_idx);
+
+    for output in outputs {
+        println!("{}", String::from_utf8(output.stdout).unwrap());
+        println!("{}", String::from_utf8(output.stderr).unwrap());
+    }
 }
 
 fn get_branches() -> (Vec<String>, String) {
