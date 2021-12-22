@@ -1,8 +1,8 @@
 mod actions;
 
-use std::process::Command;
+use std::{process::Command, env};
 
-use actions::get_action;
+use actions::{get_action, ActionType};
 
 fn main() {
     let (branches, current) = get_branches();
@@ -11,7 +11,23 @@ fn main() {
         .position(|branch| branch == &current)
         .unwrap();
 
-    let outputs = get_action()(branches, current_branch_idx);
+    let possible_args = [
+        (vec!["-d", "--delete"], ActionType::Delete),
+    ];
+
+    let cli_args = env::args().skip(1).collect::<Vec<_>>();
+
+    let mut action_type = ActionType::Checkout;
+    'args: for arg in possible_args {
+        for variant in arg.0 {
+            if cli_args.iter().find(|&el| el == variant).is_some() {
+                action_type = arg.1;
+                break 'args;
+            }
+        }
+    }
+
+    let outputs = get_action(action_type)(branches, current_branch_idx);
 
     for output in outputs {
         println!("{}", String::from_utf8(output.stdout).unwrap());

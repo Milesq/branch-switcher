@@ -1,8 +1,17 @@
 use dialoguer::{Select, MultiSelect};
 use std::process::{Command, Output};
 
-pub fn get_action<'a>() -> &'a dyn Fn(Vec<String>, usize) -> Vec<Output> {
-    &delete
+#[derive(Debug)]
+pub enum ActionType {
+    Checkout,
+    Delete,
+}
+
+pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize) -> Vec<Output> {
+    match action_type {
+        ActionType::Checkout => &checkout,
+        ActionType::Delete => &delete,
+    }
 }
 
 fn checkout(branches: Vec<String>, current: usize) -> Vec<Output> {
