@@ -1,40 +1,33 @@
+mod actions;
+
 use std::process::Command;
-use dialoguer::Select;
+
+use actions::get_action;
 
 fn main() {
-    let branches = Command::new("git")
-        .arg("branch")
-        .output()
-        .unwrap()
-        .stdout;
+    let (branches, current) = get_branches();
 
-    let branches = String::from_utf8(branches).unwrap();
-    let (branches, current) = parse_branches(branches);
-    let current = branches.iter()
+    let current_branch_idx = branches.iter()
         .position(|branch| branch == &current)
         .unwrap();
 
-    let choosen_branch = Select::new()
-        .items(&branches)
-        .default(current)
-        .interact()
-        .unwrap();
-
-    let output = Command::new("git")
-        .arg("checkout")
-        .arg(&branches[choosen_branch])
-        .output()
-        .unwrap();
-
+    let output = get_action()(branches, current_branch_idx);
     println!("{}", String::from_utf8(output.stdout).unwrap());
     println!("{}", String::from_utf8(output.stderr).unwrap());
 }
 
+fn get_branches() -> (Vec<String>, String) {
+    let branches = Command::new("git").arg("branch").output().unwrap().stdout;
+
+    let branches = String::from_utf8(branches).unwrap();
+
+    parse_branches(branches)
+}
+
 fn parse_branches(branches: String) -> (Vec<String>, String) {
     let all_branches = branches
-        .split('\n')
-        .map(|el| el
-            .trim())
+        .lines()
+        .map(|el| el.trim())
         .filter(|el| !el.is_empty());
 
     let current_branch = all_branches

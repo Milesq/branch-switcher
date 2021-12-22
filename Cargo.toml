@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-dialoguer = "0.8.0"
+dialoguer = "0.9.0"
