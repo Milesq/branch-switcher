@@ -4,13 +4,21 @@ use std::process::{Command, Output};
 #[derive(Debug)]
 pub enum ActionType {
     Checkout,
-    Delete,
+    Delete(bool),
 }
+
+static mut HARD_DELETE: bool = false;
 
 pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize) -> Vec<Output> {
     match action_type {
         ActionType::Checkout => &checkout,
-        ActionType::Delete => &delete,
+        ActionType::Delete(hard) => {
+            unsafe {
+                HARD_DELETE = hard;
+            }
+
+            &delete
+        },
     }
 }
 
@@ -43,7 +51,7 @@ fn delete(mut branches: Vec<String>, current: usize) -> Vec<Output> {
         outputs.push(
             Command::new("git")
                 .arg("branch")
-                .arg("-d")
+                .arg(if unsafe { HARD_DELETE } { "-D" } else { "-d" })
                 .arg(&branches[to_delete])
                 .output()
                 .unwrap()

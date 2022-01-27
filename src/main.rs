@@ -12,7 +12,8 @@ fn main() {
         .unwrap();
 
     let possible_args = [
-        (vec!["-d", "--delete"], ActionType::Delete),
+        (vec!["-d", "--delete"], ActionType::Delete(false)),
+        (vec!["-D"], ActionType::Delete(true)),
     ];
 
     let cli_args = env::args().skip(1).collect::<Vec<_>>();
