@@ -4,7 +4,10 @@ This is small utility app which help you switch beteween git branch faster
 
 # Usage
 
-Just type `ck` in your cmd and choose target branch
+Just type `ck` in your cmd and choose target branch.
+There are 2 switches:
+ - `-d` remove branches
+ - `-D` force remove branches
 
 # Installation
 
