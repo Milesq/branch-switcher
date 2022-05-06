@@ -21,7 +21,7 @@ pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize)
     match action_type {
         ActionType::Checkout { previous } => {
             if previous {
-                &previous
+                &previousBranch
             } else {
                 &checkout
             }
@@ -50,7 +50,7 @@ fn checkout(branches: Vec<String>, current: usize) -> Vec<Output> {
         .unwrap()]
 }
 
-fn previous(branches: Vec<String>, current: usize) -> Vec<Output> {
+fn previousBranch(branches: Vec<String>, current: usize) -> Vec<Output> {
     vec![]
 }
 
