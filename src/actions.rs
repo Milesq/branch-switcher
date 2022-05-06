@@ -1,11 +1,17 @@
-use dialoguer::{Select, MultiSelect};
-use std::process::{Command, Output};
+use dialoguer::{MultiSelect, Select};
+use std::{
+    fs::File,
+    path::Path,
+    process::{Command, Output},
+};
+
+const PREVIOUS_BRANCH_FILENAME: &str = "./git/previousBranch";
+
+type ActionOut = Option<Vec<Output>>;
 
 #[derive(Debug)]
 pub enum ActionType {
-    Checkout {
-        previous: bool
-    },
+    Checkout { previous: bool },
     Delete(bool),
 }
 
@@ -17,51 +23,52 @@ impl Default for ActionType {
 
 static mut HARD_DELETE: bool = false;
 
-pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize) -> Vec<Output> {
+pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize) -> ActionOut {
     match action_type {
         ActionType::Checkout { previous } => {
             if previous {
-                &previousBranch
+                &previous_branch
             } else {
                 &checkout
             }
-        },
+        }
         ActionType::Delete(hard) => {
             unsafe {
                 HARD_DELETE = hard;
             }
 
             &delete
-        },
+        }
     }
 }
 
-fn checkout(branches: Vec<String>, current: usize) -> Vec<Output> {
+fn checkout(branches: Vec<String>, current: usize) -> ActionOut {
     let choosen_branch = Select::new()
         .items(&branches)
         .default(current)
         .interact()
         .unwrap();
 
-    vec![Command::new("git")
+    Some(vec![Command::new("git")
         .arg("checkout")
         .arg(&branches[choosen_branch])
         .output()
-        .unwrap()]
+        .ok()?])
 }
 
-fn previousBranch(branches: Vec<String>, current: usize) -> Vec<Output> {
-    vec![]
+fn previous_branch(_: Vec<String>, _: usize) -> ActionOut {
+    if !Path::new(PREVIOUS_BRANCH_FILENAME).exists() {
+        eprintln!("It looks like you didn't switch the branch yet");
+        return None;
+    }
+
+    None
 }
 
-fn delete(mut branches: Vec<String>, current: usize) -> Vec<Output> {
+fn delete(mut branches: Vec<String>, current: usize) -> ActionOut {
     branches.remove(current);
 
-    let branches_to_delete = MultiSelect::new()
-        .items(&branches)
-        .interact()
-        .unwrap();
-
+    let branches_to_delete = MultiSelect::new().items(&branches).interact().unwrap();
 
     let mut outputs = Vec::new();
 
@@ -72,9 +79,9 @@ fn delete(mut branches: Vec<String>, current: usize) -> Vec<Output> {
                 .arg(if unsafe { HARD_DELETE } { "-D" } else { "-d" })
                 .arg(&branches[to_delete])
                 .output()
-                .unwrap()
+                .ok()?,
         );
     }
 
-    outputs
+    Some(outputs)
 }
