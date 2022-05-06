@@ -14,11 +14,12 @@ fn main() {
     let possible_args = [
         (vec!["-d", "--delete"], ActionType::Delete(false)),
         (vec!["-D"], ActionType::Delete(true)),
+        (vec!["-"], ActionType::Checkout { previous: true }),
     ];
 
     let cli_args = env::args().skip(1).collect::<Vec<_>>();
 
-    let mut action_type = ActionType::Checkout;
+    let mut action_type = Default::default();
     'args: for arg in possible_args {
         for variant in arg.0 {
             if cli_args.iter().find(|&el| el == variant).is_some() {

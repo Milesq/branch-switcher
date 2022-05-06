@@ -3,15 +3,29 @@ use std::process::{Command, Output};
 
 #[derive(Debug)]
 pub enum ActionType {
-    Checkout,
+    Checkout {
+        previous: bool
+    },
     Delete(bool),
+}
+
+impl Default for ActionType {
+    fn default() -> Self {
+        ActionType::Checkout { previous: false }
+    }
 }
 
 static mut HARD_DELETE: bool = false;
 
 pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize) -> Vec<Output> {
     match action_type {
-        ActionType::Checkout => &checkout,
+        ActionType::Checkout { previous } => {
+            if previous {
+                &previous
+            } else {
+                &checkout
+            }
+        },
         ActionType::Delete(hard) => {
             unsafe {
                 HARD_DELETE = hard;
@@ -34,6 +48,10 @@ fn checkout(branches: Vec<String>, current: usize) -> Vec<Output> {
         .arg(&branches[choosen_branch])
         .output()
         .unwrap()]
+}
+
+fn previous(branches: Vec<String>, current: usize) -> Vec<Output> {
+    vec![]
 }
 
 fn delete(mut branches: Vec<String>, current: usize) -> Vec<Output> {
