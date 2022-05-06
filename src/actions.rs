@@ -1,11 +1,12 @@
-use dialoguer::{MultiSelect, Select};
 use std::{
-    fs::File,
+    fs,
     path::Path,
     process::{Command, Output},
 };
+use dialoguer::{MultiSelect, Select};
+use crate::utils;
 
-const PREVIOUS_BRANCH_FILENAME: &str = "./git/previousBranch";
+const PREVIOUS_BRANCH_FILENAME: &str = "./.git/previousBranch";
 
 type ActionOut = Option<Vec<Output>>;
 
@@ -49,11 +50,7 @@ fn checkout(branches: Vec<String>, current: usize) -> ActionOut {
         .interact()
         .unwrap();
 
-    Some(vec![Command::new("git")
-        .arg("checkout")
-        .arg(&branches[choosen_branch])
-        .output()
-        .ok()?])
+    Some(vec![utils::checkout(&branches[choosen_branch]).ok()?])
 }
 
 fn previous_branch(_: Vec<String>, _: usize) -> ActionOut {
@@ -62,7 +59,9 @@ fn previous_branch(_: Vec<String>, _: usize) -> ActionOut {
         return None;
     }
 
-    None
+    let branch_name = fs::read_to_string(PREVIOUS_BRANCH_FILENAME).ok()?;
+
+    Some(vec![utils::checkout(branch_name.trim()).ok()?])
 }
 
 fn delete(mut branches: Vec<String>, current: usize) -> ActionOut {
