@@ -24,7 +24,7 @@ fn main() {
     let mut action_type = Default::default();
     'args: for arg in possible_args {
         for variant in arg.0 {
-            if cli_args.iter().find(|&el| el == variant).is_some() {
+            if cli_args.iter().any(|el| el == variant) {
                 action_type = arg.1;
                 break 'args;
             }
