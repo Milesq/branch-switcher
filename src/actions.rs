@@ -50,18 +50,29 @@ fn checkout(branches: Vec<String>, current: usize) -> ActionOut {
         .interact()
         .unwrap();
 
-    Some(vec![utils::checkout(&branches[choosen_branch]).ok()?])
+    let branch = branches[choosen_branch].as_str();
+
+    let output = utils::checkout(branch);
+
+    if output.is_ok() {
+        fs::write(PREVIOUS_BRANCH_FILENAME, branch.as_bytes()).unwrap();
+    }
+
+    Some(vec![output.ok()?])
 }
 
-fn previous_branch(_: Vec<String>, _: usize) -> ActionOut {
+fn previous_branch(branches: Vec<String>, idx: usize) -> ActionOut {
+    let current_branch = branches[idx].as_bytes();
     if !Path::new(PREVIOUS_BRANCH_FILENAME).exists() {
         eprintln!("It looks like you didn't switch the branch yet");
         return None;
     }
 
-    let branch_name = fs::read_to_string(PREVIOUS_BRANCH_FILENAME).ok()?;
+    let branch_name_to_switch = fs::read_to_string(PREVIOUS_BRANCH_FILENAME).ok()?;
 
-    Some(vec![utils::checkout(branch_name.trim()).ok()?])
+    fs::write(PREVIOUS_BRANCH_FILENAME, current_branch).unwrap();
+
+    Some(vec![utils::checkout(branch_name_to_switch.trim()).ok()?])
 }
 
 fn delete(mut branches: Vec<String>, current: usize) -> ActionOut {
