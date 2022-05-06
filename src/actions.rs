@@ -1,10 +1,10 @@
+use crate::utils;
+use dialoguer::{MultiSelect, Select};
 use std::{
     fs,
     path::Path,
     process::{Command, Output},
 };
-use dialoguer::{MultiSelect, Select};
-use crate::utils;
 
 const PREVIOUS_BRANCH_FILENAME: &str = "./.git/previousBranch";
 
