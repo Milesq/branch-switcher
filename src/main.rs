@@ -1,13 +1,14 @@
 mod actions;
 
-use std::{process::Command, env};
+use std::{env, process::Command};
 
 use actions::{get_action, ActionType};
 
 fn main() {
     let (branches, current) = get_branches();
 
-    let current_branch_idx = branches.iter()
+    let current_branch_idx = branches
+        .iter()
         .position(|branch| branch == &current)
         .unwrap();
 
@@ -31,7 +32,7 @@ fn main() {
 
     let outputs = get_action(action_type)(branches, current_branch_idx);
 
-    for output in outputs {
+    for output in outputs.unwrap() {
         println!("{}", String::from_utf8(output.stdout).unwrap());
         println!("{}", String::from_utf8(output.stderr).unwrap());
     }
