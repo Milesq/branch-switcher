@@ -44,6 +44,7 @@ pub fn get_action<'a>(action_type: ActionType) -> &'a dyn Fn(Vec<String>, usize)
 }
 
 fn checkout(branches: Vec<String>, current: usize) -> ActionOut {
+    let current_branch = branches[current].as_bytes();
     let choosen_branch = Select::new()
         .items(&branches)
         .default(current)
@@ -55,7 +56,7 @@ fn checkout(branches: Vec<String>, current: usize) -> ActionOut {
     let output = utils::checkout(branch);
 
     if output.is_ok() {
-        fs::write(PREVIOUS_BRANCH_FILENAME, branch.as_bytes()).unwrap();
+        fs::write(PREVIOUS_BRANCH_FILENAME, current_branch).unwrap();
     }
 
     Some(vec![output.ok()?])
