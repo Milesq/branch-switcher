@@ -9,6 +9,9 @@ There are 2 switches:
  - `-d` remove branches
  - `-D` force remove branches
 
+## Previous branch placeholder
+Type `ck -` to switch to previous branch
+
 # Installation
 
 After you download binary from release tab on github, to have to put it to the directory which is added to `path` env variable
