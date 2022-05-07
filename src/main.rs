@@ -3,7 +3,7 @@ mod utils;
 
 use std::{env, process::Command};
 
-use actions::{get_action, ActionType};
+use actions::ActionType;
 
 fn main() {
     let (branches, current) = get_branches();
@@ -31,7 +31,7 @@ fn main() {
         }
     }
 
-    let outputs = get_action(action_type)(branches, current_branch_idx);
+    let outputs = action_type.dispatch(branches, current_branch_idx);
 
     for output in outputs.unwrap() {
         println!("{}", String::from_utf8(output.stdout).unwrap());
