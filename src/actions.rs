@@ -35,7 +35,7 @@ impl ActionType {
     }
 
     fn determine_previous_branch_filename() -> String {
-        let mut previous_branch_path = utils::get_git_root().unwrap();
+        let mut previous_branch_path = utils::get_git_root().unwrap().trim().to_string();
 
         previous_branch_path.push_str("./.git/previousBranch");
 
