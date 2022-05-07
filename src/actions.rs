@@ -21,7 +21,7 @@ impl Default for ActionType {
 type ActionOut = Option<Vec<Output>>;
 
 impl ActionType {
-    pub fn dispatch<'a>(&self, branches: Vec<String>, current: usize) -> ActionOut {
+    pub fn dispatch(&self, branches: Vec<String>, current: usize) -> ActionOut {
         match self {
             ActionType::Checkout { previous } => {
                 if *previous {
