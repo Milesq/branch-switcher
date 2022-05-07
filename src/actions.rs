@@ -34,8 +34,12 @@ impl ActionType {
         }
     }
 
-    fn determine_previous_branch_filename<'a>() -> &'a str {
-        "./.git/previousBranch"
+    fn determine_previous_branch_filename() -> String {
+        let mut previous_branch_path = utils::get_git_root().unwrap();
+
+        previous_branch_path.push_str("./.git/previousBranch");
+
+        previous_branch_path
     }
 
     fn checkout(&self, branches: Vec<String>, current: usize) -> ActionOut {
@@ -61,14 +65,14 @@ impl ActionType {
         let previous_branch_filename = Self::determine_previous_branch_filename();
         let current_branch = branches[idx].as_bytes();
 
-        if !Path::new(previous_branch_filename).exists() {
+        if !Path::new(&previous_branch_filename).exists() {
             eprintln!("It looks like you didn't switch the branch yet");
             return None;
         }
 
-        let branch_name_to_switch = fs::read_to_string(previous_branch_filename).ok()?;
+        let branch_name_to_switch = fs::read_to_string(&previous_branch_filename).ok()?;
 
-        fs::write(previous_branch_filename, current_branch).unwrap();
+        fs::write(&previous_branch_filename, current_branch).unwrap();
 
         Some(vec![utils::checkout(branch_name_to_switch.trim()).ok()?])
     }
