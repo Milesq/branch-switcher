@@ -35,11 +35,14 @@ impl ActionType {
     }
 
     fn determine_previous_branch_filename() -> String {
-        let mut previous_branch_path = utils::get_git_root().unwrap().trim().to_string();
-
-        previous_branch_path.push_str("./.git/previousBranch");
+        let previous_branch_path = utils::get_git_root().unwrap().trim().to_string();
+        let previous_branch_path = Path::new(&previous_branch_path);
 
         previous_branch_path
+        .join(".git/previousBranch")
+            .to_str()
+            .unwrap()
+            .to_string()
     }
 
     fn checkout(&self, branches: Vec<String>, current: usize) -> ActionOut {
